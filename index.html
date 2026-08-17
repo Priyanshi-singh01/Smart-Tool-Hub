@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Tools Hub</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <canvas id="bg-fx" aria-hidden="true"></canvas>
+
+<header class="hub-header">
+  <div class="hub-header__inner">
+    <div class="hub-brand">
+      <span class="hub-brand__mark">STH</span>
+      <div>
+        <h1 class="hub-brand__title">Smart Tools Hub</h1>
+        <p class="hub-brand__tag">Everything in one place.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="hub-main" id="view-root">
+
+  <section class="hub-dashboard" id="view-dashboard">
+    <div class="hub-search-row">
+      <input id="search-input" class="hub-search" type="text" placeholder="Search for tools… (like: calculator, qr, invoice)" autocomplete="off">
+    </div>
+
+    <nav class="hub-categories" id="category-bar" aria-label="Categories"></nav>
+
+    <section class="hub-section" id="section-favorites" hidden>
+      <h2 class="hub-section__title">⭐ Favorites</h2>
+      <div class="hub-grid" id="grid-favorites"></div>
+    </section>
+
+    <section class="hub-section" id="section-recent" hidden>
+      <h2 class="hub-section__title">🕘 Recently Used</h2>
+      <div class="hub-grid" id="grid-recent"></div>
+    </section>
+
+    <section class="hub-section">
+      <h2 class="hub-section__title" id="grid-all-title">All Tools</h2>
+      <div class="hub-grid" id="grid-all"></div>
+      <p class="hub-empty" id="empty-state" hidden>No tool found. Search for something else.</p>
+    </section>
+  </section>
+
+  <section class="hub-workspace" id="view-workspace" hidden>
+    <div class="hub-workspace__bar">
+      <button class="hub-back" id="btn-back" type="button">← All Tools</button>
+      <button class="hub-fav-toggle" id="btn-fav-toggle" type="button" aria-pressed="false">☆</button>
+    </div>
+    <div class="hub-workspace__head">
+      <span class="hub-workspace__icon" id="ws-icon"></span>
+      <div>
+        <h2 class="hub-workspace__title" id="ws-title"></h2>
+        <p class="hub-workspace__desc" id="ws-desc"></p>
+      </div>
+    </div>
+    <div class="hub-workspace__body" id="ws-body">
+      <div class="hub-loading" id="ws-loading" hidden>
+        <span class="hub-spinner"></span> Loading tool…
+      </div>
+      <div class="hub-error" id="ws-error" hidden>
+        <p>Could not load this tool.</p>
+        <div>
+          <button id="ws-retry" type="button">Retry</button>
+          <button id="ws-error-back" type="button" class="secondary">Back to Tools</button>
+        </div>
+      </div>
+      <div id="ws-mount"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="hub-toast-region" id="toast-region" aria-live="polite"></div>
+
+<footer class="hub-footer">Smart Tools Hub • Modular Tool Platform</footer>
+<script type="module" src="js/background.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

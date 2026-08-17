@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bulk ID Card Generator</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6fa;color:#172033;font-family:"Nirmala UI","Mangal","Segoe UI",Arial,sans-serif}
+button,input{font:inherit}
+.app{display:grid;grid-template-columns:330px 1fr;min-height:100vh}
+.sidebar{background:#101b36;color:#fff;padding:22px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{font-size:21px;font-weight:800;margin-bottom:4px}.sub{font-size:12px;color:#b9c4dd;margin-bottom:22px}
+.step{font-size:12px;color:#9eacd0;margin:18px 0 7px;text-transform:uppercase;letter-spacing:.7px}
+.drop{border:1px dashed #5e70a0;border-radius:12px;padding:12px;background:#162343;margin-bottom:8px}
+.drop input{width:100%;margin-top:8px}
+.btn{width:100%;border:0;border-radius:10px;padding:11px 13px;margin-top:8px;cursor:pointer;font-weight:700}
+.primary{background:#e91d25;color:#fff}.secondary{background:#fff;color:#15203a}.ghost{background:#22335e;color:#fff}
+.status{font-size:12px;line-height:1.5;color:#cbd5ee;margin-top:12px}
+.main{padding:24px;overflow:auto}
+.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:18px}
+h1{margin:0;font-size:28px}.hint{color:#64708a;font-size:13px;margin-top:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{width:auto;margin:0}
+.toolbar{background:#fff;border:1px solid #e1e6ef;border-radius:14px;padding:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.search{flex:1;min-width:220px;padding:10px 12px;border:1px solid #d9dfeb;border-radius:9px}
+.badge{background:#eef2f8;border-radius:999px;padding:7px 11px;font-size:12px}
+.table-wrap{background:#fff;border:1px solid #e1e6ef;border-radius:14px;overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:10px;border-bottom:1px solid #edf0f5;text-align:left;white-space:nowrap}
+th{background:#f8f9fc;position:sticky;top:0}
+tr:hover{background:#fafbfe}
+.preview{margin-top:18px;background:#fff;border:1px solid #e1e6ef;border-radius:14px;padding:18px}
+.preview-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cards{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.card{
+  width:3.25in;height:2in;background:#fff;border-radius:.12in;overflow:hidden;position:relative;
+  box-shadow:0 5px 20px rgba(20,35,70,.14);border:1px solid #cfcfcf;color:#111;
+}
+.card .topbar{height:.34in;background:linear-gradient(90deg,#f21a19 0 100%);position:relative;border-bottom:2px solid #f0c600}
+.card .topbar:after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:5px;background:linear-gradient(90deg,#ffd52b 0 15%,transparent 15% 100%)}
+.logo-box{position:absolute;left:.05in;top:.03in;width:.66in;height:.28in;background:#fff;border-radius:.04in;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:4.5px;color:#c80000;text-align:center;font-weight:800;line-height:1.05}
+.logo-box img{max-width:100%;max-height:100%;object-fit:contain}
+.title{position:absolute;left:.68in;right:.04in;top:.05in;color:#fff;font-size:12.6px;font-weight:900;text-align:center;white-space:nowrap}
+.front-body{padding:.09in .10in .06in;display:flex;height:1.60in;gap:.10in}
+.photo{width:.68in;height:.98in;border:1.3px solid #222;border-radius:.06in;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none;background:#fafafa}
+.photo img{width:100%;height:100%;object-fit:cover}
+.photo span{font-size:6px;color:#777;text-align:center}
+.fields{flex:1;display:flex;flex-direction:column;height:100%;min-width:0}
+.field-list{flex:1 1 auto}
+.field{display:flex;height:.113in;align-items:center;font-size:6.6px;line-height:1;white-space:nowrap}
+.label{width:.98in;flex:none;font-weight:800}.colon{width:.06in;flex:none;font-weight:800}.value{flex:1;min-width:0;border-bottom:1px solid #333;height:.10in;overflow:hidden;text-overflow:ellipsis}
+.date-value{display:flex;gap:.08in;align-items:center}.date-value span{border-bottom:1px solid #333;min-width:.18in;text-align:center}
+.coord-line{text-align:right;font-size:6.6px;font-weight:800;padding-top:2px;white-space:nowrap}
+.sign-box{margin-left:auto;text-align:center;width:.62in}
+.sign-line{border-top:1px solid #222;width:100%;height:.10in}
+.sign-label{font-size:5.6px;font-weight:700;color:#333;margin-top:1px}
+.bottom{position:absolute;bottom:0;left:0;right:0;height:.19in;background:#ee1b1b;border-top:2px solid #ffd02a;color:#fff;font-size:6.2px;padding:.05in .10in;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.back .topline{height:.12in;background:#ee1b1b;border-bottom:2px solid #ffd02a}
+.back-title{font-size:13.4px;color:#d71920;font-weight:900;text-align:center;margin-top:.055in;line-height:1.05}
+.back-sub{font-size:6.5px;text-align:center;margin-top:.025in}
+.gears{position:absolute;left:.1in;right:.1in;top:.4in;height:.68in}
+.address-box{position:absolute;left:.12in;right:.12in;bottom:.27in;height:.64in;border:1px dashed #e33;border-radius:.06in;padding:.08in .10in}
+.addr-row{display:flex;font-size:7.4px;line-height:.18in}.addr-label{width:.85in;font-weight:800}.addr-value{flex:1;border-bottom:1px solid #555;min-height:.14in}
+.back .bottom{height:.18in}
+.empty{padding:30px;text-align:center;color:#73809a}
+.small{font-size:11px;color:#69758c}
+.modal{position:fixed;inset:0;background:rgba(8,14,30,.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal.open{display:flex}.modal-box{background:#fff;border-radius:16px;max-width:800px;width:100%;max-height:90vh;overflow:auto;padding:20px}
+.mapgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.maprow{display:flex;align-items:center;gap:8px}.maprow label{width:150px;font-size:12px}.maprow select{flex:1;padding:8px;border:1px solid #d9dfeb;border-radius:8px}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.main{padding:14px}}
+@media print{
+  body{background:#fff}
+  .sidebar,.top,.toolbar,.table-wrap,.preview-title,.screen-only{display:none!important}
+  .main{padding:0!important}
+  .print-area{display:block!important}
+  .a4-sheet{width:8.27in;height:11.69in;display:grid;grid-template-columns:repeat(2,3.25in);grid-template-rows:repeat(5,2in);gap:.15in;align-content:center;justify-content:center;page-break-after:always}
+  .a4-sheet:last-child{page-break-after:auto}
+  .print-card{box-shadow:none!important}
+}
+.print-area{display:none}
+@page{size:A4 portrait;margin:0}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">ID Card Generator</div>
+  <div class="sub">Bulk Student ID Card Tool</div>
+
+  <div class="step">1. Excel / CSV</div>
+  <div class="drop">
+    <div>Student data upload</div>
+    <input id="excel" type="file" accept=".xlsx,.xls,.csv">
+  </div>
+
+  <div class="step">2. Photos</div>
+  <div class="drop">
+    <div>Student photos folder</div>
+    <input id="photos" type="file" accept="image/*" webkitdirectory directory multiple>
+    <div class="small" style="margin-top:7px;color:#aeb9d3">Best: photo filename = ID No. (e.g. 1001.jpg)</div>
+  </div>
+
+  <div class="step">3. Optional logo</div>
+  <div class="drop">
+    <input id="logo" type="file" accept="image/*">
+  </div>
+
+  <div class="step">4. सामान्य विवरण (सभी कार्ड में लागू)</div>
+  <div class="drop">
+    <div style="font-size:12px;margin-bottom:4px">जिला समन्वयक</div>
+    <input id="coordInput" type="text" placeholder="जिला समन्वयक" value="जिला समन्वयक" style="width:100%;padding:8px;border-radius:6px;border:1px solid #3a4a78;background:#0c1730;color:#fff">
+    <div style="font-size:12px;margin:8px 0 4px">जिला कार्यक्रम प्रबंधन इकाई</div>
+    <input id="unitInput" type="text" placeholder="जिला कार्यक्रम प्रबंधन इकाई:" value="जिला कार्यक्रम प्रबंधन इकाई: लखीमपुर खीरी" style="width:100%;padding:8px;border-radius:6px;border:1px solid #3a4a78;background:#0c1730;color:#fff">
+  </div>
+
+  <div class="drop" style="display:flex;align-items:center;gap:8px">
+    <input type="checkbox" id="hindiToggle" checked style="width:16px;height:16px">
+    <label for="hindiToggle" style="font-size:12.5px">Naam/Course English me ho to auto Hindi me convert karein</label>
+  </div>
+
+  <button class="btn primary" id="generate">Generate All Cards</button>
+  <button class="btn ghost" id="mapBtn">Column Mapping Check karein</button>
+  <button class="btn ghost" id="printBtn">Print / Save PDF</button>
+  <button class="btn secondary" id="templateBtn">Download Excel Template</button>
+  <div id="status" class="status">Excel upload karke Generate All Cards dabaiye.</div>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div>
+      <h1>Bulk ID Card Generator</h1>
+      <div class="hint">3.25 × 2 inch • Front + Back • Excel based bulk generation</div>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" id="sampleBtn">Load Demo Data</button>
+      <button class="btn secondary" id="clearBtn">Clear</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search" id="search" placeholder="Search Student Name / ID / Registration No.">
+    <span class="badge" id="count">0 students</span>
+    <span class="badge">Photos: <b id="photoCount">0</b></span>
+  </div>
+
+  <div class="table-wrap">
+    <table id="studentTable">
+      <thead><tr><th>#</th><th>बैच आईडी</th><th>प्रशिक्षु का नाम</th><th>पिता का नाम</th><th>प्रशिक्षण सेक्टर</th><th>बैच कोड</th><th>Photo</th><th>Action</th></tr></thead>
+      <tbody><tr><td colspan="8" class="empty">No data loaded</td></tr></tbody>
+    </table>
+  </div>
+
+  <section class="preview">
+    <div class="preview-title">
+      <div><b>Card Preview</b> <span class="small">Selected student</span></div>
+      <div class="actions"><button class="btn ghost screen-only" id="prev">Previous</button><button class="btn ghost screen-only" id="next">Next</button></div>
+    </div>
+    <div class="cards" id="previewCards"><div class="empty">Excel upload ke baad yahan preview aayega.</div></div>
+  </section>
+
+  <div class="print-area" id="printArea"></div>
+</main>
+</div>
+
+<div class="modal" id="mapModal">
+  <div class="modal-box">
+    <h2 style="margin-top:0">Column Mapping</h2>
+    <p class="small">Excel headers ko card fields se match karein. Common names automatically detect ho jaate hain.</p>
+    <div class="mapgrid" id="mapGrid"></div>
+    <div class="actions" style="margin-top:18px;justify-content:flex-end">
+      <button class="btn secondary" id="mapCancel">Cancel</button>
+      <button class="btn primary" id="mapApply">Apply & Generate</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.8/"></script>
+<script>
+const $=id=>document.getElementById(id);
+let students=[], photoMap=new Map(), logoData="", currentIndex=0, headers=[], mapping={}, coordName="जिला समन्वयक", districtUnitText="जिला कार्यक्रम प्रबंधन इकाई: लखीमपुर खीरी", autoHindi=true;
+
+// ---- English (Roman) -> Hindi (Devanagari) auto-conversion ----
+const hindiCache=new Map(); // "rahul" -> "राहुल"
+function isDevanagari(w){return /[\u0900-\u097F]/.test(w)}
+function hasLetters(w){return /[A-Za-z]/.test(w)}
+// Offline/instant rough guess (used before the online result arrives, or if offline)
+function localGuess(word){
+  try{ return Sanscript.t(word.toLowerCase(),"itrans","devanagari",{syncope:true}); }catch(e){ return word; }
+}
+// Accurate online word-by-word conversion (Google transliteration engine)
+async function fetchHindiWord(word){
+  const key=word.toLowerCase();
+  if(hindiCache.has(key)) return hindiCache.get(key);
+  let result=localGuess(word);
+  try{
+    const res=await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(key)}&itc=hi-t-i0-und&num=1&cp=0&cs=1&ie=utf-8&oe=utf-8`);
+    const data=await res.json();
+    const best=data && data[0]==="SUCCESS" && data[1] && data[1][0] && data[1][0][1] && data[1][0][1][0];
+    if(best) result=best;
+  }catch(e){ /* offline ya blocked - localGuess hi use hoga */ }
+  hindiCache.set(key,result);
+  return result;
+}
+// Naam/course jaisi text ko Hindi me convert karke deta hai (sync - cache se, ya turant offline guess)
+function toHindi(text){
+  const s=String(text??"").trim();
+  if(!autoHindi || !s) return s;
+  if(isDevanagari(s)) return s;
+  if(!hasLetters(s)) return s;
+  return s.split(/\s+/).map(w=>{
+    if(!w || isDevanagari(w) || !hasLetters(w)) return w;
+    const key=w.toLowerCase();
+    return hindiCache.has(key)?hindiCache.get(key):localGuess(w);
+  }).join(" ");
+}
+// Poore student list ke unique English words ko background me accurate Hindi me fetch karke cache bhar deta hai, fir dobara render karta hai
+let preloadToken=0;
+async function preloadHindi(){
+  if(!autoHindi || !students.length) return;
+  const myToken=++preloadToken;
+  const words=new Set();
+  students.forEach(s=>{
+    [val(s,"centre"),val(s,"name"),val(s,"father"),val(s,"sector"),val(s,"address")].forEach(v=>{
+      String(v||"").split(/\s+/).forEach(w=>{ if(w && hasLetters(w) && !isDevanagari(w)) words.add(w.toLowerCase()); });
+    });
+  });
+  const pending=[...words].filter(w=>!hindiCache.has(w));
+  if(!pending.length) return;
+  await Promise.all(pending.map(w=>fetchHindiWord(w)));
+  if(myToken!==preloadToken) return; // naya data aa chuka, purana result discard
+  renderTable(); renderPreview(); buildPrint();
+}
+
+const fields=[
+ {key:"centre",label:"प्रशिक्षण केंद्र का नाम",aliases:["training centre","training center","centre","center","प्रशिक्षण केंद्र का नाम","प्रशिक्षण केन्द्र","प्रशिक्षण केंद्र"]},
+ {key:"name",label:"प्रशिक्षु का नाम",aliases:["student name","name","trainee name","प्रशिक्षु का नाम","प्रशिक्षार्थी का नाम","नाम"]},
+ {key:"father",label:"पिता का नाम",aliases:["father name","father","पिता का नाम","पिता"]},
+ {key:"dob",label:"जन्म तिथि",aliases:["dob","date of birth","birth date","जन्म तिथि"]},
+ {key:"batchId",label:"बैच आईडी",aliases:["batch id","batch id no","बैच आईडी","आईडी नं","id no","id no."]},
+ {key:"batchCode",label:"बैच कोड",aliases:["batch code","course code","बैच कोड","कोर्स कोड"]},
+ {key:"sector",label:"प्रशिक्षण सेक्टर",aliases:["sector","training sector","course","पाठ्यक्रम","प्रशिक्षण सेक्टर","सेक्टर"]},
+ {key:"mobile",label:"मोबाइल नं",aliases:["mobile","mobile no","mobile no.","phone","मोबाइल नं","मोबाइल"]},
+ {key:"blood",label:"ब्लड ग्रुप",aliases:["blood group","blood","ब्लड ग्रुप"]},
+ {key:"validFrom",label:"वैधता से",aliases:["valid from","validity from","वैधता से"]},
+ {key:"validTo",label:"वैधता तक",aliases:["valid to","validity to","वैधता तक"]},
+ {key:"emergency",label:"इमरजेंसी मो0 नं0",aliases:["emergency no","emergency mobile","emergency contact","इमरजेंसी मो0 नं0","इमरजेंसी नंबर"]},
+ {key:"address",label:"स्थायी पता",aliases:["address","permanent address","स्थायी पता"]},
+ {key:"photo",label:"Photo File (optional)",aliases:["photo","photo file","photo filename","image","image file","फोटो"]}
+];
+
+function norm(s){return String(s??"").trim().toLowerCase().replace(/[._-]/g," ").replace(/\s+/g," ")}
+function autoMap(){
+  const m={};
+  fields.forEach(f=>{
+    let idx=headers.findIndex(h=>f.aliases.some(a=>norm(a)===norm(h)));
+    if(idx<0) idx=headers.findIndex(h=>f.aliases.some(a=>norm(h).includes(norm(a))||norm(a).includes(norm(h))));
+    m[f.key]=idx>=0?headers[idx]:"";
+  });
+  return m;
+}
+function val(row,key){const h=mapping[key]; return h?String(row[h]??"").trim():""}
+function cleanFile(s){return String(s||"").split(/[\\\\/]/).pop().toLowerCase()}
+function keyFile(s){return cleanFile(s).replace(/\.[^.]+$/,"")}
+function findPhoto(st){
+  const explicit=val(st,"photo");
+  if(explicit){
+    const k=keyFile(explicit); if(photoMap.has(k)) return photoMap.get(k);
+  }
+  const id=keyFile(val(st,"batchId"));
+  if(id && photoMap.has(id)) return photoMap.get(id);
+  const name=keyFile(val(st,"name"));
+  if(name && photoMap.has(name)) return photoMap.get(name);
+  return "";
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function dataImg(src){return src||""}
+
+function frontCard(st, cls=""){
+ const photo=findPhoto(st);
+ const p=photo?`<img src="${dataImg(photo)}" alt="">`:`<span>PHOTO</span>`;
+ const validity=`${esc(val(st,"validFrom"))}${val(st,"validFrom")||val(st,"validTo")?" से ":""}${esc(val(st,"validTo"))}`;
+ return `<div class="card ${cls}">
+   <div class="topbar"><div class="logo-box">${logoData?`<img src="${logoData}">`:`<span>उत्तर प्रदेश<br>कौशल विकास मिशन</span>`}</div><div class="title">उत्तर प्रदेश कौशल विकास मिशन</div></div>
+   <div class="front-body">
+    <div class="photo">${p}</div>
+    <div class="fields">
+      <div class="field-list">
+      ${field("प्रशिक्षण केंद्र का नाम",toHindi(val(st,"centre")))}
+      ${field("प्रशिक्षु का नाम",toHindi(val(st,"name")))}
+      ${field("पिता का नाम",toHindi(val(st,"father")))}
+      ${field("जन्म तिथि",val(st,"dob"))}
+      ${field("बैच आईडी",val(st,"batchId"))}
+      ${field("बैच कोड",val(st,"batchCode"))}
+      ${field("प्रशिक्षण सेक्टर",toHindi(val(st,"sector")))}
+      ${field("मोबाइल नं",val(st,"mobile"))}
+      ${field("ब्लड ग्रुप",val(st,"blood"))}
+      ${field("वैधता",validity)}
+      </div>
+      <div class="sign-box"><div class="sign-line"></div><div class="sign-label">हस्ताक्षर</div></div>
+      <div class="coord-line">${esc(coordName||"जिला समन्वयक")}</div>
+    </div>
+   </div>
+   <div class="bottom">${esc(districtUnitText||"जिला कार्यक्रम प्रबंधन इकाई: लखीमपुर खीरी")}</div>
+ </div>`;
+}
+function field(label,value){return `<div class="field"><span class="label">${label}</span><span class="colon">:</span><span class="value">${esc(value)}</span></div>`}
+function gearPath(cx,cy,rOuter,teeth){
+ const rInner=rOuter*0.82, holeR=rOuter*0.34, step=(Math.PI*2)/teeth, toothW=step*0.52;
+ let d='';
+ for(let i=0;i<teeth;i++){
+  const a0=i*step, a1=a0+toothW, a2=a0+step*0.5;
+  const pt=(r,a)=>[cx+r*Math.cos(a), cy+r*Math.sin(a)];
+  const [x0,y0]=pt(rInner,a0),[x1,y1]=pt(rOuter,a0),[x2,y2]=pt(rOuter,a1),[x3,y3]=pt(rInner,a1),[x4,y4]=pt(rInner,a2);
+  d+=`${i===0?'M':'L'}${x0},${y0} L${x1},${y1} L${x2},${y2} L${x3},${y3} L${x4},${y4} `;
+ }
+ d+='Z ';
+ const holeSteps=24;
+ d+=`M${cx+holeR},${cy} `;
+ for(let i=1;i<=holeSteps;i++){const a=(Math.PI*2/holeSteps)*i; d+=`L${cx+holeR*Math.cos(a)},${cy+holeR*Math.sin(a)} `;}
+ d+='Z';
+ return d;
+}
+function gearShape(cx,cy,rOuter,teeth,gold){
+ const d=gearPath(cx,cy,rOuter,teeth);
+ return gold
+  ? `<path d="${d}" fill="url(#gGrad)" fill-rule="evenodd" stroke="#c98e00" stroke-width="1"/>`
+  : `<path d="${d}" fill="#e2e2e2" fill-rule="evenodd" stroke="#cfcfcf" stroke-width="1.4"/>`;
+}
+function gearSvg(){
+ return `<svg class="gears" viewBox="0 0 500 96" preserveAspectRatio="none">
+ <defs><linearGradient id="gGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffcf3f"/><stop offset="100%" stop-color="#f5a800"/></linearGradient></defs>
+ ${gearShape(45,78,44,14,false)}
+ ${gearShape(122,50,22,10,true)}
+ ${gearShape(172,80,15,8,true)}
+ ${gearShape(228,60,35,12,false)}
+ ${gearShape(292,82,19,9,false)}
+ ${gearShape(345,52,32,12,true)}
+ ${gearShape(405,78,20,10,true)}
+ ${gearShape(462,58,32,12,false)}
+ </svg>`;
+}
+function backCard(st, cls=""){
+ return `<div class="card back ${cls}">
+   <div class="topline"></div>
+   <div class="back-title">उत्तर प्रदेश कौशल विकास मिशन</div>
+   <div class="back-sub">व्यावसायिक शिक्षा, कौशल विकास एवं उद्यमशीलता विभाग, उत्तर प्रदेश सरकार</div>
+   ${gearSvg()}
+   <div class="address-box">
+     <div class="addr-row"><span class="addr-label">इमरजेंसी मो0 नं0</span><span class="addr-value">${esc(val(st,"emergency"))}</span></div>
+     <div class="addr-row"><span class="addr-label">स्थायी पता</span><span class="addr-value">${esc(toHindi(val(st,"address")))}</span></div>
+   </div>
+   <div class="bottom"></div>
+ </div>`;
+}
+function renderPreview(){
+ if(!students.length){$("previewCards").innerHTML='<div class="empty">No student selected.</div>';return}
+ const st=students[currentIndex];
+ $("previewCards").innerHTML=frontCard(st)+backCard(st);
+}
+function renderTable(){
+ const q=norm($("search").value);
+ const rows=students.map((s,i)=>({s,i})).filter(({s})=>{
+   if(!q)return true; return [val(s,"batchId"),val(s,"name"),val(s,"batchCode"),val(s,"sector")].some(x=>norm(x).includes(q));
+ });
+ $("count").textContent=students.length+" students";
+ $("photoCount").textContent=[...new Set(students.map(findPhoto).filter(Boolean))].length;
+ if(!rows.length){$("studentTable").querySelector("tbody").innerHTML='<tr><td colspan="8" class="empty">No matching students</td></tr>';return}
+ $("studentTable").querySelector("tbody").innerHTML=rows.map(({s,i},n)=>`<tr>
+ <td>${i+1}</td><td>${esc(val(s,"batchId"))}</td><td>${esc(toHindi(val(s,"name")))}</td><td>${esc(toHindi(val(s,"father")))}</td><td>${esc(toHindi(val(s,"sector")))}</td><td>${esc(val(s,"batchCode"))}</td>
+ <td>${findPhoto(s)?'✓ Found':'⚠ Missing'}</td><td><button class="btn ghost" style="width:auto;margin:0;padding:6px 9px" onclick="selectStudent(${i})">Preview</button></td>
+ </tr>`).join("");
+}
+window.selectStudent=i=>{currentIndex=i;renderPreview();window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}
+
+function buildPrint(){
+ const area=$("printArea"); area.innerHTML="";
+ for(let page=0;page<students.length;page+=10){
+   const group=students.slice(page,page+10);
+   const sheet=document.createElement("div"); sheet.className="a4-sheet";
+   group.forEach(s=>{const d=document.createElement("div");d.className="print-card";d.innerHTML=frontCard(s);sheet.appendChild(d)});
+   area.appendChild(sheet);
+   const backSheet=document.createElement("div"); backSheet.className="a4-sheet";
+   // reverse columns for long-edge duplex alignment
+   for(let r=0;r<5;r++){
+     const row=group.slice(r*2,r*2+2).reverse();
+     row.forEach(s=>{const d=document.createElement("div");d.className="print-card";d.innerHTML=backCard(s);backSheet.appendChild(d)});
+   }
+   area.appendChild(backSheet);
+ }
+}
+function downloadTemplate(){
+ const rows=[["प्रशिक्षण केंद्र का नाम","प्रशिक्षु का नाम","पिता का नाम","जन्म तिथि","बैच आईडी","बैच कोड","प्रशिक्षण सेक्टर","मोबाइल नं","ब्लड ग्रुप","वैधता से","वैधता तक","इमरजेंसी मो0 नं0","स्थायी पता","Photo File"],
+ ["Training Centre Mohammadi","Rahul Kumar","Amit Kumar","10/05/2008","1001","CC-01","Computer Course","9876543210","B+","12/08/2026","12/08/2027","9876500000","Mohammadi, Lakhimpur Kheri","1001.jpg"],
+ ["Training Centre Mohammadi","Priya Singh","Raj Kumar","15/08/2007","1002","CC-01","Computer Course","9876543211","O+","12/08/2026","12/08/2027","9876500001","Mohammadi, Lakhimpur Kheri","1002.jpg"]];
+ const ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Students");XLSX.writeFile(wb,"ID_Card_Student_Template.xlsx");
+}
+async function loadPhotos(files){
+ photoMap.clear();
+ for(const f of files){
+   if(!f.type.startsWith("image/"))continue;
+   const k=keyFile(f.name);
+   const data=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
+   photoMap.set(k,data);
+ }
+ $("photoCount").textContent=photoMap.size;
+}
+function openMapping(){
+ const grid=$("mapGrid");
+ grid.innerHTML=fields.map(f=>`<div class="maprow"><label>${f.label}</label><select data-key="${f.key}"><option value="">-- Not mapped --</option>${headers.map(h=>`<option ${mapping[f.key]===h?"selected":""} value="${esc(h)}">${esc(h)}</option>`).join("")}</select></div>`).join("");
+ $("mapModal").classList.add("open");
+}
+$("excel").addEventListener("change",async e=>{
+ const file=e.target.files[0]; if(!file)return;
+ const data=await file.arrayBuffer();
+ let wb;
+ if(file.name.toLowerCase().endsWith(".csv")) wb=XLSX.read(new TextDecoder("utf-8").decode(data),{type:"string"});
+ else wb=XLSX.read(data,{type:"array"});
+ const ws=wb.Sheets[wb.SheetNames[0]];
+ const json=XLSX.utils.sheet_to_json(ws,{defval:""});
+ headers=XLSX.utils.sheet_to_json(ws,{header:1,defval:""})[0]||[];
+ mapping=autoMap();
+ students=json;
+ $("status").textContent=`${students.length} students loaded. Photos upload karke Generate All Cards dabaiye.`;
+ renderTable(); renderPreview(); preloadHindi();
+});
+$("photos").addEventListener("change",e=>loadPhotos(e.target.files));
+$("logo").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{logoData=r.result;renderPreview()};r.readAsDataURL(f)});
+$("hindiToggle").addEventListener("change",e=>{autoHindi=e.target.checked;renderTable();renderPreview();buildPrint();preloadHindi()});
+$("coordInput").addEventListener("input",e=>{coordName=e.target.value;renderPreview()});
+$("unitInput").addEventListener("input",e=>{districtUnitText=e.target.value;renderPreview()});
+$("generate").addEventListener("click",()=>{if(!students.length){alert("Pehle Excel/CSV upload karein.");return}renderTable();renderPreview();buildPrint();preloadHindi();$("status").textContent=`Ready: ${students.length} ID cards (Front + Back). Print / Save PDF button use karein.`});
+$("printBtn").addEventListener("click",()=>{if(!students.length){alert("Pehle Excel upload karein aur Generate All Cards dabayein.");return}buildPrint();window.print()});
+$("templateBtn").addEventListener("click",downloadTemplate);
+$("mapBtn").addEventListener("click",()=>{if(!headers.length){alert("Pehle Excel/CSV upload karein.");return}openMapping()});
+$("search").addEventListener("input",renderTable);
+$("prev").addEventListener("click",()=>{if(students.length){currentIndex=(currentIndex-1+students.length)%students.length;renderPreview()}});
+$("next").addEventListener("click",()=>{if(students.length){currentIndex=(currentIndex+1)%students.length;renderPreview()}});
+$("clearBtn").addEventListener("click",()=>{students=[];photoMap.clear();headers=[];mapping={};$("excel").value="";$("photos").value="";$("previewCards").innerHTML='<div class="empty">Cleared.</div>';renderTable();$("status").textContent="Ready."});
+$("sampleBtn").addEventListener("click",()=>{
+ headers=["प्रशिक्षण केंद्र का नाम","प्रशिक्षु का नाम","पिता का नाम","जन्म तिथि","बैच आईडी","बैच कोड","प्रशिक्षण सेक्टर","मोबाइल नं","ब्लड ग्रुप","वैधता से","वैधता तक","इमरजेंसी मो0 नं0","स्थायी पता","Photo File"];
+ mapping=autoMap(); students=[
+ {"प्रशिक्षण केंद्र का नाम":"Training Centre Mohammadi","प्रशिक्षु का नाम":"Rahul Kumar","पिता का नाम":"Amit Kumar","जन्म तिथि":"10/05/2008","बैच आईडी":"1001","बैच कोड":"CC-01","प्रशिक्षण सेक्टर":"Computer Course","मोबाइल नं":"9876543210","ब्लड ग्रुप":"B+","वैधता से":"12/08/2026","वैधता तक":"12/08/2027","इमरजेंसी मो0 नं0":"9876500000","स्थायी पता":"Mohammadi, Lakhimpur Kheri","Photo File":""},
+ {"प्रशिक्षण केंद्र का नाम":"Training Centre Mohammadi","प्रशिक्षु का नाम":"Priya Singh","पिता का नाम":"Raj Kumar","जन्म तिथि":"15/08/2007","बैच आईडी":"1002","बैच कोड":"CC-01","प्रशिक्षण सेक्टर":"Computer Course","मोबाइल नं":"9876543211","ब्लड ग्रुप":"O+","वैधता से":"12/08/2026","वैधता तक":"12/08/2027","इमरजेंसी मो0 नं0":"9876500001","स्थायी पता":"Mohammadi, Lakhimpur Kheri","Photo File":""}
+ ];renderTable();renderPreview();buildPrint();preloadHindi();$("status").textContent="Demo data loaded. Replace it with your Excel data.";});
+$("mapCancel").addEventListener("click",()=>$("mapModal").classList.remove("open"));
+$("mapApply").addEventListener("click",()=>{
+ applyMapping();
+ $("mapModal").classList.remove("open");
+ renderTable(); renderPreview(); buildPrint(); preloadHindi();
+ $("status").textContent=`Mapping applied. ${students.length} students ready.`;
+});
+function applyMapping(){[...$("mapGrid").querySelectorAll("select")].forEach(s=>mapping[s.dataset.key]=s.value)}
+</script>
+</body>
+</html>
